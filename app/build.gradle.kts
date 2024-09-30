@@ -23,7 +23,9 @@ tasks.register<Jar>("createJar") {
     from(project.the<JavaPluginConvention>().sourceSets["main"].output)
     // Include compiled Kotlin class files
 }
-
+tasks.named<Jar>("jar") {
+    enabled = false  // Disable the default JAR task
+}
 
 
 
@@ -41,4 +43,18 @@ dependencies {
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+
+            // Include the created JAR in the publishing task
+            artifact(tasks.getByName("createJar"))
+            groupId = group.toString()
+            artifactId = "totp-generator"
+            version = version.toString()
+        }
+    }
 }
